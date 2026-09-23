@@ -1,57 +1,45 @@
 ---
 svcdesk_decisions:
-  C1: wallclock      # wallclock | business
-  C2: immutable      # reopen | immutable
-  C3: vip            # matrix | vip
+  C1: wallclock
+  C2: immutable
+  C3: matrix
 ---
-<!-- ai-generated: ??% - TODO: replace ?? with your estimate and say how AI was used (the advisory flags this line until you do) -->
+<!-- ai-generated: 100% - ChatGPT generated the rationale for the selected C1, C2 and C3 decisions. -->
 
 # Decisions
 
-<!--
-How to fill this in (delete this comment when you are done):
-- The three values in the front matter must be the ones your RUNNING service exhibits. The checker probes the
-  service (checks 2.41, 2.35, 2.46) and compares them with this file (L1-CORE-4).
-- Keep the three headings starting with "## C1", "## C2", "## C3" and the five bold labels in each section. Write
-  at least 20 characters after every label; the lecturer reads this document, so write what you would say to
-  the service owner, not the minimum.
-- "Service owner": the role (never a person's name) who would sign this decision off, and why it is theirs.
-- "Customer outcome": what the reporter or the organisation gets from this choice, in one or two sentences.
-- Update the ai-generated line above to say how much of this text an AI wrote and how.
--->
-
 ## C1 - SLA clock for P1
 
-**Decision:** TODO
+**Decision:** P1 acknowledgement and resolution targets use elapsed wall-clock time, while P2 to P4 continue to use the Europe/Warsaw business-hours clock.
 
-**Rejected alternative:** TODO
+**Rejected alternative:** Applying business hours to P1 was rejected because it would suspend the highest-impact incidents overnight and through weekends.
 
-**Reason:** TODO
+**Reason:** P1 represents an organisation-wide stoppage, so a continuous clock makes the response commitment match the operational impact and the need for immediate escalation.
 
-**Service owner:** TODO
+**Service owner:** The Service Desk product owner approves this rule because that role owns SLA definitions, escalation expectations, and the reporting consequences.
 
-**Customer outcome:** TODO
+**Customer outcome:** Reporters receive a predictable four-hour resolution target for critical incidents regardless of when the incident is submitted.
 
 ## C2 - Closed tickets and reopening
 
-**Decision:** TODO
+**Decision:** A resolved ticket may be reopened within seven days, but a closed ticket is immutable and further work requires a new ticket linked with `related_to`.
 
-**Rejected alternative:** TODO
+**Rejected alternative:** Reopening a closed ticket within seven days was rejected because it changes a record that has already completed the confirmation and closure process.
 
-**Reason:** TODO
+**Reason:** Keeping closed records immutable preserves a stable audit trail and reporting history while still allowing failed fixes to be reopened before final closure.
 
-**Service owner:** TODO
+**Service owner:** The Service Desk product owner approves this lifecycle rule because that role owns ticket governance, auditability, and closure policy.
 
-**Customer outcome:** TODO
+**Customer outcome:** Customers can quickly resume work on a failed fix while it is resolved, and after closure they receive a new traceable ticket connected to the original.
 
 ## C3 - VIP reporters and the priority matrix
 
-**Decision:** TODO
+**Decision:** Priority is calculated only from impact and urgency; the VIP flag is retained as reporter information but does not alter the matrix result.
 
-**Rejected alternative:** TODO
+**Rejected alternative:** Automatically raising every VIP ticket to at least P2 was rejected because personal status would override the measured operational effect of the incident.
 
-**Reason:** TODO
+**Reason:** A single transparent matrix keeps prioritisation consistent, auditable, and focused on business impact rather than the identity of the reporter.
 
-**Service owner:** TODO
+**Service owner:** The Service Desk product owner approves the priority policy because that role owns queue ordering, fairness, and priority-reporting rules.
 
-**Customer outcome:** TODO
+**Customer outcome:** All reporters receive the same impact-based prioritisation, while agents can still see the VIP flag and communicate appropriately.
