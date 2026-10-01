@@ -10,11 +10,13 @@ from pathlib import Path
 from typing import Annotated, Any, Literal
 from zoneinfo import ZoneInfo
 
-from fastapi import Depends, FastAPI, Header, Query, Request
+from fastapi import Body, Depends, FastAPI, Header, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from svcdesk.metrics import DoraValidationError, compute_metrics
 
 UTC = timezone.utc
 WARSAW = ZoneInfo("Europe/Warsaw")
@@ -293,6 +295,41 @@ def ticket_sla_status(ticket: dict[str, Any], now: datetime) -> dict[str, Any]:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "svcdesk"}
+
+
+@app.post("/dora/metrics")
+def dora_metrics(payload: Any = Body(...)) -> dict[str, Any]:
+    try:
+        return compute_metrics(payload)
+    except DoraValidationError as exc:
+        raise ServiceError(422, "invalid_event_log", str(exc)) from exc
+
+
+@app.get("/dora/ticket-events")
+def dora_ticket_events() -> list[dict[str, Any]]:
+    phases = (
+        ("created_at", "created", "new"),
+        ("acknowledged_at", "acknowledged", "acknowledged"),
+        ("resolved_at", "resolved", "resolved"),
+        ("closed_at", "closed", "closed"),
+    )
+    events: list[dict[str, Any]] = []
+    for ticket in load_tickets():
+        for timestamp_field, phase, state in phases:
+            timestamp = ticket.get(timestamp_field)
+            if timestamp is None:
+                continue
+            events.append(
+                {
+                    "ticket_id": ticket["id"],
+                    "at": timestamp,
+                    "phase": phase,
+                    "priority": ticket["priority"],
+                    "state": state,
+                }
+            )
+    events.sort(key=lambda event: (parse_instant(event["at"]), event["ticket_id"]))
+    return events
 
 
 @app.post("/tickets", status_code=201)

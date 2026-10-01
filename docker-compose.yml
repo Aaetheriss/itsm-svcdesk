@@ -23,8 +23,8 @@ services:
 
   tests:
     build:
-      context: ./tests
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: tests/Dockerfile
     profiles: ["tests"]
     depends_on:
       svcdesk:
