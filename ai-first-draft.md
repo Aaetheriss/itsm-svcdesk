@@ -3,13 +3,13 @@ lab3_first_draft:
   source: ai
   tool: "ChatGPT (GPT-5.6 Sol Pro), chat.openai.com, 10 October 2026"
   ladder: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
-  verdict: TODO
-  evidence: {p99_seconds: TODO, bucket: [TODO, TODO], relative_width: TODO}
+  verdict: refuted
+  evidence: {p99_seconds: 0.1089, bucket: [0.1, 0.25], relative_width: 1.377}
 lab3_flawed_ladder:
-  verdict: TODO
-  evidence: {p99_seconds: TODO, bucket: [TODO, TODO], relative_width: TODO}
+  verdict: refuted
+  evidence: {p99_seconds: 0.1089, bucket: [0.04, 0.5], relative_width: 4.224}
 ---
-<!-- ai-generated: 100% - ChatGPT produced the first draft before any measurement; the measured evidence will be added afterwards. -->
+<!-- ai-generated: 100% - ChatGPT supplied the first draft; the measurement arithmetic was generated locally from the published load result. -->
 
 # The assistant's first draft, and two verdicts
 
@@ -29,12 +29,12 @@ For a 99% availability SLO, use a fast multiwindow burn-rate alert with burn rat
 
 ## Verdict on the draft ladder
 
-Pending the first `Aaetheriss` measurement. The prompt, answer and ladder above are the committed first draft; the verdict and arithmetic will be added after `itsmlab load 3`.
+The measured p99 was 0.1089 s. The draft ladder places it in (0.1, 0.25], whose width is 0.15 s. The relative width is (0.25 - 0.1) / 0.1089 = 1.377. A histogram quantile may therefore be interpolated anywhere across that coarse interval. The verdict is **refuted** under M-11. The measured p50 was 0.0268 s. The measured p95 was 0.0458 s. The direct kb-index p99 was 0.0956 s.
 
 ## The draft alert rule
 
-The draft proposes a 14.4x availability burn alert with 1h and 5m windows. The final rules will retain the multiwindow idea and add a second, slower burn-rate alert.
+The useful part of the draft was the multiwindow 14.4x availability alert: both a long and short error ratio must exceed the same visible constant threshold. I retained that design as the P1 rule and added a 6x, 6h/30m P2 rule so a slower sustained burn reaches chat without waking a person for a brief spike. Both rules filter the /kb/search route and keep their thresholds in the alert expressions so mutation testing can change them.
 
 ## Verdict on the instructor's flawed ladder
 
-Pending the same `Aaetheriss` measurement. The final version will calculate the containing bucket and relative width for the instructor ladder from that run.
+The same p99, 0.1089 s, falls in (0.04, 0.5] in the instructor ladder. Its width is 0.46 s and its relative width is (0.5 - 0.04) / 0.1089 = 4.224. That interval is much wider than 20% of the measured p99, so the ladder is **refuted**. It spends many boundaries below 40 ms while leaving the slow-mode region almost entirely inside one bucket.

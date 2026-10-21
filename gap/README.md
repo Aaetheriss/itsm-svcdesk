@@ -1,0 +1,4 @@
+<!-- ai-generated: 100% - ChatGPT explained the expected client-server difference created by the declared Toxiproxy toxic. -->
+# Client-server latency gap
+
+The declared downstream Toxiproxy toxic adds 100 ms after `svcdesk` has completed the request and produced its response. The client-side open-loop measurement therefore includes the dependency latency, the `svcdesk` processing time and the additional proxy delay. The server histogram stops when `svcdesk` finishes producing the response, so it does not include the downstream delay added afterwards. With zero jitter the expected difference between the two p99 values is approximately 0.100 seconds; scheduling and histogram interpolation can move the observed value slightly. The official checker recreates the same toxic and re-measures both sides, which is the authoritative validation of the declared gap.

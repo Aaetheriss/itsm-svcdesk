@@ -1,0 +1,14 @@
+# grafana/provisioning/dashboards/lab3.yml - loads every dashboard JSON in grafana/dashboards/ into YOUR OWN
+# Grafana, in a folder named svcdesk. The files are the truth: Grafana re-reads the directory every 10 seconds and
+# never writes back to it, so save a change by exporting the dashboard's JSON into that directory
+# (grafana/dashboards/README.md).
+apiVersion: 1
+providers:
+  - name: lab3
+    folder: svcdesk
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false              # the UI cannot overwrite a file's dashboard; export instead
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards

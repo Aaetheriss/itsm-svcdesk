@@ -1,0 +1,15 @@
+# grafana/provisioning/datasources/prometheus.yml - the datasource of YOUR OWN Grafana (compose profile
+# "observability"). The checker never starts Grafana: it reads the queries out of grafana/dashboards/*.json and runs
+# them on its own Prometheus (MONITORING-SPEC.md M-22 to M-24).
+# The uid is `prometheus`: a panel refers to it as "datasource": {"type": "prometheus", "uid": "prometheus"}.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090        # your prometheus service, on the compose network
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 5s                 # your scrape interval; Grafana derives $__rate_interval from it

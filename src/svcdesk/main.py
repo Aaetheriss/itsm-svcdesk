@@ -5,14 +5,18 @@ import json
 import os
 import sqlite3
 import uuid
+from contextlib import asynccontextmanager
+from time import perf_counter
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Annotated, Any, Literal
 from zoneinfo import ZoneInfo
 
+import httpx
 from fastapi import Body, Depends, FastAPI, Header, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
+from prometheus_client import CollectorRegistry, Histogram, generate_latest
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -77,7 +81,56 @@ class TicketInput(BaseModel):
     related_to: str | None = None
 
 
-app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+HISTOGRAM_BUCKETS = (
+    0.02, 0.0228, 0.026, 0.0297, 0.0338, 0.0386, 0.044, 0.0501, 0.0572, 0.0652,
+    0.0743, 0.0847, 0.0966, 0.1102, 0.1256, 0.1433, 0.1634, 0.1863, 0.2124, 0.2422,
+    0.2762, 0.3149, 0.3591, 0.4094, 0.4669, 0.5324, 0.607, 0.6922, 0.7893, 0.9,
+)
+METRICS_REGISTRY = CollectorRegistry(auto_describe=True)
+REQUEST_DURATION = Histogram(
+    "http_server_request_duration_seconds",
+    "Duration of HTTP server requests in seconds.",
+    labelnames=(
+        "http_request_method",
+        "http_route",
+        "http_response_status_code",
+    ),
+    buckets=HISTOGRAM_BUCKETS,
+    registry=METRICS_REGISTRY,
+)
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    timeout = httpx.Timeout(3.0, connect=3.0, read=3.0, write=3.0, pool=3.0)
+    limits = httpx.Limits(max_connections=128, max_keepalive_connections=64)
+    application.state.kb_client = httpx.AsyncClient(timeout=timeout, limits=limits)
+    try:
+        yield
+    finally:
+        await application.state.kb_client.aclose()
+
+
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
+
+
+@app.middleware("http")
+async def observe_request(request: Request, call_next):
+    started = perf_counter()
+    status_code = 500
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
+    finally:
+        if request.url.path != "/metrics":
+            route = request.scope.get("route")
+            route_template = getattr(route, "path", None) or "unmatched"
+            REQUEST_DURATION.labels(
+                http_request_method=request.method,
+                http_route=route_template,
+                http_response_status_code=str(status_code),
+            ).observe(perf_counter() - started)
 
 
 @app.exception_handler(ServiceError)
@@ -295,6 +348,41 @@ def ticket_sla_status(ticket: dict[str, Any], now: datetime) -> dict[str, Any]:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "svcdesk"}
+
+
+@app.get("/metrics", include_in_schema=False)
+def prometheus_metrics() -> Response:
+    return Response(
+        content=generate_latest(METRICS_REGISTRY),
+        headers={"Content-Type": "text/plain; version=0.0.4; charset=utf-8"},
+    )
+
+
+@app.get("/kb/search")
+async def kb_search(
+    request: Request,
+    q: Annotated[str, Query(min_length=1, max_length=200)],
+) -> dict[str, Any]:
+    base_url = os.getenv("KB_INDEX_URL", "http://kb-index:8080").rstrip("/")
+    try:
+        upstream = await request.app.state.kb_client.get(
+            f"{base_url}/search",
+            params={"q": q},
+        )
+    except httpx.RequestError as exc:
+        raise ServiceError(502, "upstream_unavailable", "knowledge-base index is unavailable") from exc
+
+    if upstream.status_code != 200:
+        raise ServiceError(502, "upstream_unavailable", "knowledge-base index is unavailable")
+
+    try:
+        payload = upstream.json()
+    except ValueError as exc:
+        raise ServiceError(502, "upstream_unavailable", "knowledge-base index returned invalid JSON") from exc
+    hits = payload.get("hits") if isinstance(payload, dict) else None
+    if not isinstance(hits, list):
+        raise ServiceError(502, "upstream_unavailable", "knowledge-base index returned an invalid response")
+    return {"query": q, "hits": hits}
 
 
 @app.post("/dora/metrics")

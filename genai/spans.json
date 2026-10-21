@@ -1,0 +1,38 @@
+[
+  {
+    "name": "chat local-mock-model",
+    "context": {
+      "trace_id": "0x7f12a9d5430b4d54892ce682f9571961",
+      "span_id": "0x48b0d877d5e21a7f",
+      "trace_state": "[]"
+    },
+    "kind": "SpanKind.CLIENT",
+    "parent_id": null,
+    "start_time": "2026-10-10T12:00:00.000000Z",
+    "end_time": "2026-10-10T12:00:00.012000Z",
+    "status": {
+      "status_code": "UNSET"
+    },
+    "attributes": {
+      "gen_ai.operation.name": "chat",
+      "gen_ai.provider.name": "openai",
+      "gen_ai.request.model": "local-mock-model",
+      "gen_ai.request.max_tokens": 16,
+      "gen_ai.request.temperature": 0.0,
+      "gen_ai.response.id": "chatcmpl-local-001",
+      "gen_ai.response.model": "local-mock-model",
+      "gen_ai.response.finish_reasons": [
+        "stop"
+      ],
+      "gen_ai.usage.input_tokens": 8,
+      "gen_ai.usage.output_tokens": 4
+    },
+    "events": [],
+    "links": [],
+    "resource": {
+      "attributes": {
+        "service.name": "lab3-genai-capture"
+      }
+    }
+  }
+]
