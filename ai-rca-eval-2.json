@@ -1,0 +1,40 @@
+{
+  "investigator": {
+    "agent": "ChatGPT evidence review",
+    "model": "GPT-5.6 Sol Pro",
+    "mcp_server": "prom_mcp.py (mcp 2.2.0)",
+    "transcript": "ai-rca/second/transcript.md"
+  },
+  "hypotheses": [
+    {
+      "id": "S1",
+      "hypothesis": "The shipping service is the direct latency bottleneck: its server-side p99 for POST /ship-order exceeds 5 seconds during the incident.",
+      "component": "shipping",
+      "predicts": "histogram_quantile(0.99, sum by (le) (rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"shipping\", span_name=\"POST /ship-order\", span_kind=\"SPAN_KIND_SERVER\"}[5m]))) > 5000",
+      "at": "2026-10-12T05:06:30Z",
+      "result": true,
+      "verdict": "correct",
+      "evidence": "The p99 was approximately 8550 ms at 05:06:30Z and was below the threshold on the healthy baseline."
+    },
+    {
+      "id": "S2",
+      "hypothesis": "The email service is under abnormal memory pressure: the email container exceeds 75 percent memory usage during the incident.",
+      "component": "email",
+      "predicts": "container_memory_percent_ratio{container_name=\"email\"} > 75",
+      "at": "2026-10-12T05:06:30Z",
+      "result": true,
+      "verdict": "correct",
+      "evidence": "The email container was above 75 percent during the incident and near 57 percent at the baseline evaluation."
+    },
+    {
+      "id": "S3",
+      "hypothesis": "Product catalog lock contention is the dominant cause: product-catalog server-side p99 exceeds one second during the incident.",
+      "component": "product-catalog",
+      "predicts": "histogram_quantile(0.99, sum by (le) (rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"product-catalog\", span_name=\"oteldemo.ProductCatalogService/GetProduct\", span_kind=\"SPAN_KIND_SERVER\"}[5m]))) > 1000",
+      "at": "2026-10-12T05:06:30Z",
+      "result": false,
+      "verdict": "hallucinated",
+      "evidence": "The product-catalog GetProduct p99 was approximately 47 ms, so the comparison returned no series."
+    }
+  ]
+}

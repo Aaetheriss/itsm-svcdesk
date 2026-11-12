@@ -1,6 +1,6 @@
 # itsmlab.yaml - read by the checker (itsmlab) and by the wrappers itsmlab.sh / itsmlab.ps1.
-lab: 3
-baselines: {}
+lab: 4
+baselines: {lab3: student}
 repository: "Aaetheriss/itsm-svcdesk"
 login: Aaetheriss
 submissions_repo: swasik/itsm-2026-submissions

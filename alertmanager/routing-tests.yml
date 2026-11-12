@@ -1,0 +1,18 @@
+# ai-generated: 100% - ChatGPT wrote route and inhibition cases for the alerts in this repository.
+routes:
+  - labels: {alertname: ShopCheckoutErrors, service: checkout, severity: P1}
+    receivers: [pager]
+  - labels: {alertname: ShopCheckoutSlow, service: checkout, severity: P1}
+    receivers: [pager]
+  - labels: {alertname: KbSearchAvailabilityBurnSlow, service: svcdesk, slo: availability, severity: P2}
+    receivers: [chat]
+  - labels: {alertname: KbSearchAvailabilityBurnFast, service: svcdesk, slo: availability, severity: P1}
+    receivers: [pager]
+
+inhibitions:
+  - source: {alertname: ShopCheckoutSlow, service: checkout, severity: P1}
+    target: {alertname: CheckoutLatencyWarning, service: checkout, severity: P2}
+    inhibited: true
+  - source: {alertname: ShopCheckoutSlow, service: checkout, severity: P1}
+    target: {alertname: CheckoutLatencyWarning, service: frontend, severity: P2}
+    inhibited: false
