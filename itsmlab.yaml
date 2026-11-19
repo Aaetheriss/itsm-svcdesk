@@ -1,5 +1,5 @@
 # itsmlab.yaml - read by the checker (itsmlab) and by the wrappers itsmlab.sh / itsmlab.ps1.
-lab: 4
+lab: 5
 baselines: {lab3: student}
 repository: "Aaetheriss/itsm-svcdesk"
 login: Aaetheriss

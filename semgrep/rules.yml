@@ -1,0 +1,13 @@
+# ai-generated: 100% - ChatGPT wrote two repository-specific Semgrep rules and their test expectations for Lab 5 Stretch 3.
+rules:
+  - id: svcdesk-sqlite-connection-review
+    languages: [python]
+    severity: WARNING
+    message: Review each direct sqlite3.connect call for timeout, path control and transaction handling.
+    pattern: sqlite3.connect(...)
+
+  - id: svcdesk-httpx-async-client-review
+    languages: [python]
+    severity: WARNING
+    message: Review each long-lived httpx.AsyncClient for explicit timeout, connection limits and lifecycle cleanup.
+    pattern: httpx.AsyncClient(...)
