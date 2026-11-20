@@ -1,6 +1,6 @@
 ---
 lab5_triage:
-  image: ghcr.io/aaetheriss/itsm-svcdesk@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  image: ghcr.io/aaetheriss/itsm-svcdesk@sha256:b57196d1225a3e3a3f931dda3d9907620b5eb74f61820163890788e2fc1ef28b
   sarif_receipt: 0
 ---
 <!-- ai-generated: 100% - ChatGPT prepared the initial Lab 5 triage structure; the final values and rows are generated from the receipted SARIF. -->
