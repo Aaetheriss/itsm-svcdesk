@@ -1,0 +1,83 @@
+{
+  "set": "lab5-canary",
+  "defects": [
+    {
+      "id": "A02",
+      "file": "lab5-canary/app/attachment_export.py",
+      "class": "injection",
+      "cwe": "CWE-78",
+      "start_line": 11,
+      "end_line": 11
+    },
+    {
+      "id": "A04",
+      "file": "lab5-canary/app/avatar_fetch.py",
+      "class": "insecure-transport",
+      "cwe": "CWE-295",
+      "start_line": 7,
+      "end_line": 7
+    },
+    {
+      "id": "A10",
+      "file": "lab5-canary/app/session_store.py",
+      "class": "deserialization",
+      "cwe": "CWE-502",
+      "start_line": 15,
+      "end_line": 15
+    },
+    {
+      "id": "A11",
+      "file": "lab5-canary/app/sla_formula.py",
+      "class": "injection",
+      "cwe": "CWE-95",
+      "start_line": 6,
+      "end_line": 6
+    },
+    {
+      "id": "A12",
+      "file": "lab5-canary/app/ticket_access.py",
+      "class": "access-control",
+      "cwe": "CWE-639",
+      "start_line": 12,
+      "end_line": 17
+    },
+    {
+      "id": "C04",
+      "file": "lab5-canary/config/jwt_secret.py",
+      "class": "secret",
+      "cwe": "CWE-321",
+      "start_line": 2,
+      "end_line": 2
+    },
+    {
+      "id": "C06",
+      "file": "lab5-canary/config/search.py",
+      "class": "secret",
+      "cwe": "CWE-798",
+      "start_line": 3,
+      "end_line": 3
+    },
+    {
+      "id": "C07",
+      "file": "lab5-canary/config/signing_key.py",
+      "class": "secret",
+      "cwe": "CWE-321",
+      "start_line": 2,
+      "end_line": 11
+    },
+    {
+      "id": "D04",
+      "file": "lab5-canary/requirements.txt",
+      "class": "vulnerable-dependency",
+      "cwe": "CWE-1395",
+      "package": "python-multipart"
+    },
+    {
+      "id": "D05",
+      "file": "lab5-canary/requirements.txt",
+      "class": "vulnerable-dependency",
+      "cwe": "CWE-1395",
+      "package": "PyYAML"
+    }
+  ]
+}
